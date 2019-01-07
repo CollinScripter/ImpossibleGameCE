@@ -80,7 +80,7 @@ void check_bounds() {
 		location_x = LEVEL_LENGTH - LCD_WIDTH;
 	}
 	if (location_x < 0) location_x = 0;
-	if (square_y > LCD_HEIGHT - SCALE) square_y = LCD_HEIGHT - SCALE;
+	if (square_y > LCD_HEIGHT) square_y = LCD_HEIGHT;
 	if (square_y < 0) square_y = 0;
 }
 
