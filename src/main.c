@@ -41,8 +41,8 @@ void debug_move() {
 	else if (kb_Data[6] & kb_Sub && degree > 0) degree -= 1;
 }
 
-void move(float time) {
-	location_x += (SCALE * 11) * time; //Move right
+void move(float time, int moved) {
+	location_x += moved; //Move right
 	//dbg_sprintf(dbgout, "Location X: %d\n", location_x);
 	if (location_x > LEVEL_LENGTH) location_x = 0; //Stop from crossing into RAM
 
@@ -97,15 +97,19 @@ void clock_init() {
 
 void main() {
 	float tick_time = 0, start_tick = 0;
+	int moved;
+
 	gfx_Begin();
-	gfx_SetDrawBuffer();
 	//draw_main_menu();
 
 	calculate_rotations();
 	clock_init();
+	gfx_SetDrawBuffer();
+	init_level();
+	gfx_BlitBuffer();
 	while (mainLoop) {
 		start_tick = (float)atomic_load_increasing_32(&timer_1_Counter) / 32768;
-		clear_screen();
+		//clear_screen();
 		kb_Scan();
 
 		if (kb_Data[6] & kb_Enter) {
@@ -116,14 +120,20 @@ void main() {
 		} else if (kb_Data[1] & kb_Trace) {
 			show_level = true;
 		}
+		moved = (SCALE * 11) * tick_time;
 
-		draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last probably
-
+		//draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last probably
 		
 		check_bounds();
-		if (show_level) draw_level();
 		debug_move();
-		move(tick_time);
+		move(tick_time, moved);
+		gfx_SetDrawBuffer();
+		if (show_level) draw_level(moved);
+		gfx_SetDrawScreen();
+		gfx_ShiftLeft(moved);
+		dbg_sprintf(dbgout, "From %i to %i\n", LCD_WIDTH - moved, moved);
+		if (moved > 0) gfx_BlitRectangle(gfx_buffer, LCD_WIDTH - moved, 0, moved, LCD_HEIGHT);
+
 		if (rtc_IntStatus & RTC_SEC_INT) {
             draw_fps(tickrate);
 			lastrate = tickrate;
@@ -132,8 +142,10 @@ void main() {
         } else {
 			draw_fps(lastrate);
 		}
+		gfx_SetDrawBuffer();
 		//gfx_Wait();
-		gfx_SwapDraw();
+		//gfx_SwapDraw();
+		//gfx_BlitBuffer();
 		tick_time = ((float)atomic_load_increasing_32(&timer_1_Counter) / 32768) - start_tick;
 		tickrate++;
 		//while (!os_GetCSC()) {}

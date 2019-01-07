@@ -72,16 +72,19 @@ void clear_screen() {
 void draw_fps(int rate) {
 	char returnframerate[12];
 	sprintf(returnframerate, "FPS: %d", rate);
+	gfx_SetColor(gfx_RGBTo1555(0x60, 0x60, 0xFF));
+	gfx_FillRectangle_NoClip(0, (FONT_HEIGHT) / 2, 7*7, 8);
 	gfx_SetTextFGColor(gfx_black);
 	gfx_PrintStringXY(returnframerate, 0, (FONT_HEIGHT) / 2);
 }
 
-void draw_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
+void init_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
 	int i, j, bound_x, bound_y, offset_y;
 	bound_y = (LCD_HEIGHT - 16) / SCALE;
 	bound_x = (LCD_WIDTH / SCALE);
 	offset_y = 32 / SCALE;
 
+	clear_screen();
 	gfx_SetColor(gfx_white);
 	gfx_FillRectangle(0, LCD_HEIGHT - HALF_SCALE, LCD_WIDTH, 4); //Base line
 
@@ -109,6 +112,46 @@ void draw_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
 					draw_square(j * SCALE, i * SCALE, gfx_yellow);
 					break;
 			}
+		}
+	}
+}
+
+void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bottom
+	int i, j, bound_x, bound_y, offset_y, last_area;
+	bound_y = (LCD_HEIGHT - 16) / SCALE;
+	bound_x = (LCD_WIDTH / SCALE);
+	offset_y = 32 / SCALE;
+	last_area = bound_x - 1;
+
+	//gfx_ShiftLeft(pixels);
+	//gfx_SetColor(gfx_white);
+	//gfx_FillRectangle(LCD_WIDTH - pixels, LCD_HEIGHT - HALF_SCALE, LCD_WIDTH, 4); //Base line
+
+	gfx_SetColor(gfx_RGBTo1555(0x60, 0x60, 0xFF));
+	gfx_FillRectangle_NoClip(LCD_WIDTH - pixels, 0, pixels, LCD_HEIGHT - 16);
+	
+	for (i = 1; i <= bound_y; i++) {
+		switch (level[i - 1][last_area + (location_x / SCALE)]) {
+			case 'D': //Square Block Cross
+			case 'B': //Square Block
+				draw_square(last_area * SCALE, i * SCALE, gfx_blue);
+				break;
+			case 'x': //Small Spike
+				draw_spike(last_area * SCALE, i * SCALE, SCALE, HALF_SCALE, gfx_red);
+				break;
+			case 'X': //Large Spike
+				draw_spike(last_area * SCALE, i * SCALE, SCALE, SCALE, gfx_red);
+				break;
+			case 's': //Two Small Spikes
+				draw_spike(last_area * SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
+				draw_spike(last_area * SCALE + HALF_SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
+				break;
+			case '-': //Top Half Block
+				draw_rectangele(last_area * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
+				break;
+			case 'F': //Finish Line
+				draw_square(last_area * SCALE, i * SCALE, gfx_yellow);
+				break;
 		}
 	}
 }
