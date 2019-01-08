@@ -52,17 +52,22 @@ void draw_main_menu() {
 
 void draw_square(int x, int y, uint8_t color) {//Bottom left corner
 	gfx_SetColor(color);
-	gfx_FillRectangle_NoClip(x, y - SCALE, SCALE, SCALE);
+	gfx_FillRectangle(x, y - SCALE, SCALE, SCALE);
 }
 
 void draw_rectangele(int x, int y, int width, int height, uint8_t color) {//Bottom left corner
 	gfx_SetColor(color);
-	gfx_FillRectangle_NoClip(x, y - height, width, height);
+	gfx_FillRectangle(x, y - height, width, height);
 }
 
 void draw_spike(int x, int y, int width, int height, uint8_t color) {
 	gfx_SetColor(color);
-	gfx_FillTriangle_NoClip(x, y - 1, x + (width / 2), y - height, x + width - 1, y - 1);
+	gfx_FillTriangle(x, y - 1, x + (width / 2), y - height, x + width - 1, y - 1);
+}
+
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint8_t color) {
+	gfx_SetColor(color);
+	gfx_FillTriangle(x0, y0 - 1, x1, y1, x2 - 1, y2 - 1);
 }
 
 void clear_screen() {
@@ -117,6 +122,48 @@ void init_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
 }
 
 void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bottom
+	int i, j, bound_x, bound_y, position;
+	bound_y = (LCD_HEIGHT - 16) / SCALE;
+	bound_x = (LCD_WIDTH / SCALE);
+
+	gfx_SetClipRegion(LCD_WIDTH - pixels, 0, LCD_WIDTH, LCD_HEIGHT);
+
+	gfx_SetColor(gfx_RGBTo1555(0x60, 0x60, 0xFF));
+	gfx_FillRectangle_NoClip(LCD_WIDTH - pixels, 0, pixels, LCD_HEIGHT - 16);
+
+	for (i = 1; i <= bound_y; i++) {
+		//for (j = 10 - (int)(pixels / SCALE); j < bound_x; j++) {
+		for (j = 9; j < bound_x; j++) {
+			switch (level[i - 1][j + (location_x / SCALE)]) {
+				case 'D': //Square Block Cross
+				case 'B': //Square Block
+					draw_square(j * SCALE, i * SCALE, gfx_blue);
+					break;
+				case 'x': //Small Spike
+					draw_spike(j * SCALE, i * SCALE, SCALE, HALF_SCALE, gfx_red);
+					break;
+				case 'X': //Large Spike
+					dbg_sprintf(dbgout, "Drawing spike at %i\nCurrent location: %i\n", LCD_WIDTH - (location_x % SCALE) - pixels, location_x % SCALE);
+					draw_spike(LCD_WIDTH - (location_x % SCALE) - pixels, i * SCALE, SCALE, SCALE, gfx_red);
+					break;
+				case 's': //Two Small Spikes
+					draw_spike(LCD_WIDTH - (location_x % SCALE) - pixels, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
+					draw_spike(LCD_WIDTH - (location_x % SCALE) - pixels + HALF_SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
+					break;
+				case '-': //Top Half Block
+					draw_rectangele(j * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
+					break;
+				case 'F': //Finish Line
+					draw_square(j * SCALE, i * SCALE, gfx_yellow);
+					break;
+			}
+		}
+	}
+
+	gfx_SetClipRegion(0, 0, LCD_WIDTH, LCD_HEIGHT);
+}
+
+void draw_level_old(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bottom
 	int i, j, bound_x, bound_y, offset_y, last_area;
 	bound_y = (LCD_HEIGHT - 16) / SCALE;
 	bound_x = (LCD_WIDTH / SCALE);
@@ -134,7 +181,7 @@ void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bot
 		switch (level[i - 1][last_area + (location_x / SCALE)]) {
 			case 'D': //Square Block Cross
 			case 'B': //Square Block
-				draw_square(last_area * SCALE, i * SCALE, gfx_blue);
+				draw_rectangele(LCD_WIDTH - pixels, i * SCALE, pixels, SCALE, gfx_blue);
 				break;
 			case 'x': //Small Spike
 				draw_spike(last_area * SCALE, i * SCALE, SCALE, HALF_SCALE, gfx_red);
@@ -147,7 +194,7 @@ void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bot
 				draw_spike(last_area * SCALE + HALF_SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
 				break;
 			case '-': //Top Half Block
-				draw_rectangele(last_area * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
+				draw_rectangele(LCD_WIDTH - pixels, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
 				break;
 			case 'F': //Finish Line
 				draw_square(last_area * SCALE, i * SCALE, gfx_yellow);

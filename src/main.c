@@ -120,6 +120,7 @@ void main() {
 		} else if (kb_Data[1] & kb_Trace) {
 			show_level = true;
 		}
+		
 		moved = (SCALE * 11) * tick_time;
 
 		//draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last probably
