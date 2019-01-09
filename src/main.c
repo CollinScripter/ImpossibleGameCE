@@ -128,9 +128,7 @@ void main() {
 		check_bounds();
 		debug_move();
 		move(tick_time, moved);
-		gfx_SetDrawBuffer();
 		if (show_level) draw_level(moved);
-		gfx_SetDrawScreen();
 		gfx_ShiftLeft(moved);
 		dbg_sprintf(dbgout, "From %i to %i\n", LCD_WIDTH - moved, moved);
 		if (moved > 0) gfx_BlitRectangle(gfx_buffer, LCD_WIDTH - moved, 0, moved, LCD_HEIGHT);
@@ -143,9 +141,8 @@ void main() {
         } else {
 			draw_fps(lastrate);
 		}
-		gfx_SetDrawBuffer();
 		//gfx_Wait();
-		//gfx_SwapDraw();
+		gfx_SwapDraw();
 		//gfx_BlitBuffer();
 		tick_time = ((float)atomic_load_increasing_32(&timer_1_Counter) / 32768) - start_tick;
 		tickrate++;
