@@ -9,6 +9,7 @@ extern char level[7][276];
 //13 frames at 60fps to do a 90 degree turn
 int rotate[4][12][2] = {0};
 int position = 0;
+bool draw_location = 0; //Zero for Screen, One for Buffer
 gfx_sprite_t *behind_draw;
 gfx_sprite_t *draw;
 
@@ -76,9 +77,19 @@ void clear_screen() {
 	gfx_FillScreen(gfx_RGBTo1555(0x60, 0x60, 0xFF));
 }
 
+void switch_draw_location() {
+	if (draw_location == 0) {
+		draw_location = 1;
+		gfx_SetDrawBuffer();
+	} else {
+		draw_location = 0;
+		gfx_SetDrawScreen();
+	}
+}
+
 void draw_fps(int rate) {
-	char returnframerate[12];
-	sprintf(returnframerate, "FPS: %d", rate);
+	char returnframerate[14];
+	sprintf(returnframerate, "  FPS: %d", rate);
 	gfx_SetTextFGColor(gfx_black);
 	gfx_SetTextBGColor(gfx_RGBTo1555(0x60, 0x60, 0xFF));
 	gfx_PrintStringXY(returnframerate, 0, (FONT_HEIGHT) / 2);
@@ -143,9 +154,10 @@ void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bot
 
 	position += pixels;
 
-	if (position >= SCALE) {
+	if (position >= SCALE || location_x == 0) { 
+		gfx_Sprite(draw, LCD_WIDTH - position, 0); //Draw the last of what we have
 		gfx_GetSprite(behind_draw, LCD_WIDTH - SCALE, 0);
-		gfx_SetDrawBuffer();
+		switch_draw_location();
 		gfx_SetColor(gfx_RGBTo1555(0x60, 0x60, 0xFF));
 		gfx_FillRectangle_NoClip(LCD_WIDTH - SCALE, 0, SCALE, LCD_HEIGHT);
 		gfx_SetColor(gfx_white);
@@ -179,10 +191,10 @@ void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bot
 		}
 		gfx_GetSprite(draw, LCD_WIDTH - SCALE, 0);
 		gfx_Sprite(behind_draw, LCD_WIDTH - SCALE, 0);
-		gfx_SetDrawScreen();
+		switch_draw_location();
 		position -= SCALE;
-		gfx_Sprite(draw, LCD_WIDTH - SCALE, 0);
-	} else {
-		gfx_Sprite(draw, LCD_WIDTH - SCALE, 0);
 	}
+	
+	gfx_Sprite(draw, LCD_WIDTH - position, 0);
+
 }

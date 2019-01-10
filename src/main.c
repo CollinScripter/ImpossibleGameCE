@@ -106,6 +106,8 @@ void main() {
 	clock_init();
 	init_level();
 	//gfx_BlitBuffer();
+	//gfx_SwapDraw();
+	//switch_draw_location();
 	while (mainLoop) {
 		start_tick = (float)atomic_load_increasing_32(&timer_1_Counter) / 32768;
 		kb_Scan();
@@ -120,14 +122,14 @@ void main() {
 		}
 
 		//draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last
-		//pixels_moved = (SCALE * 11) * tick_time;
+		pixels_moved = (SCALE * 11) * tick_time;
 		
 		check_bounds();
-		pixels_moved = 0;
+		//pixels_moved = 0;
 		debug_move();
 		gfx_ShiftLeft(pixels_moved);
-		if (show_level && pixels_moved != 0) draw_level(pixels_moved);
-		//move(tick_time, pixels_moved);
+		if (show_level) draw_level(pixels_moved);
+		move(tick_time, pixels_moved);
 		if (rtc_IntStatus & RTC_SEC_INT) {
             draw_fps(tickrate);
 			lastrate = tickrate;
