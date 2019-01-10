@@ -101,11 +101,11 @@ void main() {
 	gfx_SetDrawBuffer();
 	//draw_main_menu();
 
-	calculate_rotations();
 	clock_init();
+	init_level();
+	gfx_BlitBuffer();
 	while (mainLoop) {
 		start_tick = (float)atomic_load_increasing_32(&timer_1_Counter) / 32768;
-		clear_screen();
 		kb_Scan();
 
 		if (kb_Data[6] & kb_Enter) {
@@ -117,7 +117,7 @@ void main() {
 			show_level = true;
 		}
 
-		draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last
+		//draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last
 	
 		
 		check_bounds();
@@ -133,7 +133,8 @@ void main() {
 			draw_fps(lastrate);
 		}
 		//gfx_Wait();
-		gfx_SwapDraw();
+		//gfx_SwapDraw();
+		gfx_BlitBuffer();
 		tick_time = ((float)atomic_load_increasing_32(&timer_1_Counter) / 32768) - start_tick;
 		tickrate++;
 		//while (!os_GetCSC()) {}
