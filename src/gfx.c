@@ -9,6 +9,9 @@ extern char level[7][276];
 //13 frames at 60fps to do a 90 degree turn
 int rotate[4][12][2] = {0};
 int position = 0;
+gfx_sprite_t *behind_draw;
+gfx_sprite_t *draw;
+
 
 void calculate_rotations() {
 	int point[2] = {0};
@@ -100,6 +103,8 @@ void init_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
 	int i, j;
 
 	calculate_rotations();
+	behind_draw = gfx_MallocSprite(SCALE, LCD_HEIGHT - 16);
+	draw = gfx_MallocSprite(SCALE, LCD_HEIGHT - 16);
 	clear_screen();
 
 	gfx_SetColor(gfx_white);
@@ -138,33 +143,46 @@ void draw_level(int pixels) {//Screen fits 10 wide, 7 tall, 16px offset from bot
 
 	position += pixels;
 
-	gfx_SetColor(gfx_white);
-	gfx_FillRectangle(0, LCD_HEIGHT - HALF_SCALE, LCD_WIDTH, 4); //Base line
+	if (position >= SCALE) {
+		gfx_GetSprite(behind_draw, LCD_WIDTH - SCALE, 0);
+		gfx_SetDrawBuffer();
+		gfx_SetColor(gfx_RGBTo1555(0x60, 0x60, 0xFF));
+		gfx_FillRectangle_NoClip(LCD_WIDTH - SCALE, 0, SCALE, LCD_HEIGHT);
+		gfx_SetColor(gfx_white);
+		gfx_FillRectangle(0, LCD_HEIGHT - HALF_SCALE, LCD_WIDTH, 4); //Base line
 
-	for (i = 1; i <= BOUNDY; i++) {
-		for (j = 0; j < BOUNDX; j++) {
-			switch (level[i - 1][j + (location_x / SCALE)]) {
-				case 'D': //Square Block Cross
-				case 'B': //Square Block
-					draw_square(j * SCALE, i * SCALE, gfx_blue);
-					break;
-				case 'x': //Small Spike
-					draw_spike(j * SCALE, i * SCALE, SCALE, HALF_SCALE, gfx_red);
-					break;
-				case 'X': //Large Spike
-					draw_spike(j * SCALE, i * SCALE, SCALE, SCALE, gfx_red);
-					break;
-				case 's': //Two Small Spikes
-					draw_spike(j * SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
-					draw_spike(j * SCALE + HALF_SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
-					break;
-				case '-': //Top Half Block
-					draw_rectangle(j * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
-					break;
-				case 'F': //Finish Line
-					draw_square(j * SCALE, i * SCALE, gfx_yellow);
-					break;
+		for (i = 1; i <= BOUNDY; i++) {
+			for (j = 9; j < BOUNDX; j++) {
+				switch (level[i - 1][j + (location_x / SCALE)]) {
+					case 'D': //Square Block Cross
+					case 'B': //Square Block
+						draw_square(j * SCALE, i * SCALE, gfx_blue);
+						break;
+					case 'x': //Small Spike
+						draw_spike(j * SCALE, i * SCALE, SCALE, HALF_SCALE, gfx_red);
+						break;
+					case 'X': //Large Spike
+						draw_spike(j * SCALE, i * SCALE, SCALE, SCALE, gfx_red);
+						break;
+					case 's': //Two Small Spikes
+						draw_spike(j * SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
+						draw_spike(j * SCALE + HALF_SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
+						break;
+					case '-': //Top Half Block
+						draw_rectangle(j * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
+						break;
+					case 'F': //Finish Line
+						draw_square(j * SCALE, i * SCALE, gfx_yellow);
+						break;
+				}
 			}
 		}
+		gfx_GetSprite(draw, LCD_WIDTH - SCALE, 0);
+		gfx_Sprite(behind_draw, LCD_WIDTH - SCALE, 0);
+		gfx_SetDrawScreen();
+		position -= SCALE;
+		gfx_Sprite(draw, LCD_WIDTH - SCALE, 0);
+	} else {
+		gfx_Sprite(draw, LCD_WIDTH - SCALE, 0);
 	}
 }

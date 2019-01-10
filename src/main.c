@@ -19,11 +19,13 @@ int tickrate = 0; //How many frames in a second?
 int lastrate = 0; //How many frames were in the last second?
 float degree_float = 0; //How far REALLY rotated is the cube?
 int degree = 0; //How far rotated is the cube? 0-12
+int pixels_moved = 0; //How many pixels did we move this frame?
 
 void debug_move() {
 	if (kb_Data[7] & kb_Right) {
 		dbg_sprintf(dbgout, "Moving Right...\n");
 		location_x += SCALE;
+		pixels_moved += SCALE;
 	}
 	else if (kb_Data[7] & kb_Left) {
 		dbg_sprintf(dbgout, "Moving Left...\n");
@@ -41,8 +43,8 @@ void debug_move() {
 	else if (kb_Data[6] & kb_Sub && degree > 0) degree -= 1;
 }
 
-void move(float time) {
-	location_x += (SCALE * 11) * time; //Move right
+void move(float time, int pixels) {
+	location_x += pixels; //Move right
 	//dbg_sprintf(dbgout, "Location X: %d\n", location_x);
 	if (location_x > LEVEL_LENGTH) location_x = 0; //Stop from crossing into RAM
 
@@ -98,12 +100,12 @@ void clock_init() {
 void main() {
 	float tick_time = 0, start_tick = 0;
 	gfx_Begin();
-	gfx_SetDrawBuffer();
+	gfx_SetDrawScreen();
 	//draw_main_menu();
 
 	clock_init();
 	init_level();
-	gfx_BlitBuffer();
+	//gfx_BlitBuffer();
 	while (mainLoop) {
 		start_tick = (float)atomic_load_increasing_32(&timer_1_Counter) / 32768;
 		kb_Scan();
@@ -118,12 +120,14 @@ void main() {
 		}
 
 		//draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last
-	
+		//pixels_moved = (SCALE * 11) * tick_time;
 		
 		check_bounds();
-		if (show_level) draw_level();
+		pixels_moved = 0;
 		debug_move();
-		move(tick_time);
+		gfx_ShiftLeft(pixels_moved);
+		if (show_level && pixels_moved != 0) draw_level(pixels_moved);
+		//move(tick_time, pixels_moved);
 		if (rtc_IntStatus & RTC_SEC_INT) {
             draw_fps(tickrate);
 			lastrate = tickrate;
@@ -134,7 +138,7 @@ void main() {
 		}
 		//gfx_Wait();
 		//gfx_SwapDraw();
-		gfx_BlitBuffer();
+		//gfx_BlitBuffer();
 		tick_time = ((float)atomic_load_increasing_32(&timer_1_Counter) / 32768) - start_tick;
 		tickrate++;
 		//while (!os_GetCSC()) {}
