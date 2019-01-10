@@ -7,9 +7,9 @@
 //  * Full jump time is 0.433333333 seconds
 
 extern char level[7][276]; //The actual level
-int attempts = 0; //Unused, for attempt counter
+//int attempts = 0; //Unused, for attempt counter
 int location_x = 0; //Position of the camera in the x-axis
-int location_y = 0; //Currently unused, for the camera
+//int location_y = 0; //Currently unused, for the camera
 int square_x = SCALE * 2; //Where the square is drawn on screen
 int square_y = 0; //Where the square is drawn on screen
 bool mainLoop = true; //Maintains the mainloop
@@ -117,8 +117,8 @@ void main() {
 			show_level = true;
 		}
 
-		draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last probably
-
+		draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last
+	
 		
 		check_bounds();
 		if (show_level) draw_level();

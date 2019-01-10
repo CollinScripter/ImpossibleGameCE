@@ -55,7 +55,7 @@ void draw_square(int x, int y, uint8_t color) {//Bottom left corner
 	gfx_FillRectangle_NoClip(x, y - SCALE, SCALE, SCALE);
 }
 
-void draw_rectangele(int x, int y, int width, int height, uint8_t color) {//Bottom left corner
+void draw_rectangle(int x, int y, int width, int height, uint8_t color) {//Bottom left corner
 	gfx_SetColor(color);
 	gfx_FillRectangle_NoClip(x, y - height, width, height);
 }
@@ -76,17 +76,29 @@ void draw_fps(int rate) {
 	gfx_PrintStringXY(returnframerate, 0, (FONT_HEIGHT) / 2);
 }
 
+void draw_player_rotate(int x0, int y0, int angle, uint8_t color) {
+	int y = LCD_HEIGHT - y0 - (SCALE * 1);
+	int x = x0 + HALF_SCALE;
+	int angle_frame = angle - 1;
+	gfx_SetColor(color);
+	if (angle == 0) {
+		gfx_FillRectangle(x - HALF_SCALE, y - HALF_SCALE, SCALE, SCALE);
+	} else {
+		gfx_FillTriangle(rotate[0][angle_frame][0] + x, rotate[0][angle_frame][1] + y, rotate[1][angle_frame][0] + x, rotate[1][angle_frame][1] + y, rotate[2][angle_frame][0] + x, rotate[2][angle_frame][1] + y);
+		gfx_FillTriangle(rotate[1][angle_frame][0] + x, rotate[1][angle_frame][1] + y, rotate[2][angle_frame][0] + x, rotate[2][angle_frame][1] + y, rotate[3][angle_frame][0] + x, rotate[3][angle_frame][1] + y);
+		//dbg_sprintf(dbgout, "Y0: %d Y1: %d Y2: %d Y3: %d\n", rotate[0][angle_frame][1] + y, rotate[1][angle_frame][1] + y, rotate[2][angle_frame][1] + y, rotate[3][angle_frame][1] + y);
+		//dbg_sprintf(dbgout, "X0: %d X1: %d X2: %d X3: %d\n", rotate[0][angle_frame][0] + x, rotate[1][angle_frame][0] + x, rotate[2][angle_frame][0] + x, rotate[3][angle_frame][0] + x);
+	}
+}
+
 void draw_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
-	int i, j, bound_x, bound_y, offset_y;
-	bound_y = (LCD_HEIGHT - 16) / SCALE;
-	bound_x = (LCD_WIDTH / SCALE);
-	offset_y = 32 / SCALE;
+	int i, j;
 
 	gfx_SetColor(gfx_white);
 	gfx_FillRectangle(0, LCD_HEIGHT - HALF_SCALE, LCD_WIDTH, 4); //Base line
 
-	for (i = 1; i <= bound_y; i++) {
-		for (j = 0; j < bound_x; j++) {
+	for (i = 1; i <= BOUNDY; i++) {
+		for (j = 0; j < BOUNDX; j++) {
 			switch (level[i - 1][j + (location_x / SCALE)]) {
 				case 'D': //Square Block Cross
 				case 'B': //Square Block
@@ -103,27 +115,12 @@ void draw_level() {//Screen fits 10 wide, 7 tall, 16px offset from bottom
 					draw_spike(j * SCALE + HALF_SCALE, i * SCALE, HALF_SCALE, HALF_SCALE, gfx_red);
 					break;
 				case '-': //Top Half Block
-					draw_rectangele(j * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
+					draw_rectangle(j * SCALE, i * SCALE - 16, SCALE, HALF_SCALE, gfx_blue);
 					break;
 				case 'F': //Finish Line
 					draw_square(j * SCALE, i * SCALE, gfx_yellow);
 					break;
 			}
 		}
-	}
-}
-
-void draw_player_rotate(int x0, int y0, int angle, uint8_t color) {
-	int y = LCD_HEIGHT - y0 - (SCALE * 1);
-	int x = x0 + HALF_SCALE;
-	int angle_frame = angle - 1;
-	gfx_SetColor(color);
-	if (angle == 0) {
-		gfx_FillRectangle(x - HALF_SCALE, y - HALF_SCALE, SCALE, SCALE);
-	} else {
-		gfx_FillTriangle(rotate[0][angle_frame][0] + x, rotate[0][angle_frame][1] + y, rotate[1][angle_frame][0] + x, rotate[1][angle_frame][1] + y, rotate[2][angle_frame][0] + x, rotate[2][angle_frame][1] + y);
-		gfx_FillTriangle(rotate[1][angle_frame][0] + x, rotate[1][angle_frame][1] + y, rotate[2][angle_frame][0] + x, rotate[2][angle_frame][1] + y, rotate[3][angle_frame][0] + x, rotate[3][angle_frame][1] + y);
-		//dbg_sprintf(dbgout, "Y0: %d Y1: %d Y2: %d Y3: %d\n", rotate[0][angle_frame][1] + y, rotate[1][angle_frame][1] + y, rotate[2][angle_frame][1] + y, rotate[3][angle_frame][1] + y);
-		//dbg_sprintf(dbgout, "X0: %d X1: %d X2: %d X3: %d\n", rotate[0][angle_frame][0] + x, rotate[1][angle_frame][0] + x, rotate[2][angle_frame][0] + x, rotate[3][angle_frame][0] + x);
 	}
 }

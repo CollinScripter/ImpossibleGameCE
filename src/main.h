@@ -24,3 +24,5 @@
 #define FONT_WIDTH        8
 #define FONT_HEIGHT       8
 #define LEVEL_LENGTH 276 * SCALE
+#define BOUNDY (LCD_HEIGHT - 16) / SCALE
+#define BOUNDX (LCD_WIDTH / SCALE)
