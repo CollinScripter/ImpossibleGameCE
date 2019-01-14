@@ -121,15 +121,14 @@ void main() {
 			show_level = true;
 		}
 
-		//draw_player_rotate(square_x, square_y, degree, gfx_orange); //Player should actually be drawn last
 		pixels_moved = (SCALE * 11) * tick_time;
 		
 		check_bounds();
-		//pixels_moved = 0;
 		debug_move();
-		gfx_ShiftLeft(pixels_moved);
-		if (show_level) draw_level(pixels_moved);
-		move(tick_time, pixels_moved);
+		if (show_level) {
+			draw_level(pixels_moved);
+			move(tick_time, pixels_moved);
+		}
 		if (rtc_IntStatus & RTC_SEC_INT) {
             draw_fps(tickrate);
 			lastrate = tickrate;
