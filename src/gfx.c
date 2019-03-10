@@ -70,7 +70,7 @@ void draw_rectangle(int x, int y, int width, int height, uint8_t color) {
 
 void draw_spike(int x, int y, int width, int height, uint8_t color) {
 	gfx_SetColor(color);
-	//gfx_FillTriangle(x, y + height - 1, x + width / 2, y, x + width - 1, y + height - 1);
+	gfx_FillTriangle(x, y + height - 1, x + width / 2, y, x + width - 1, y + height - 1);
 }
 
 void clear_screen() {
@@ -91,7 +91,7 @@ void draw_player_rotate(int x, int y, int angle, uint8_t color) {
 }
 
 void draw_start_level() { //Draws the initial stage area
-    int x, y;
+    uint8_t x, y;
 	//char tile[8];
 
 	clear_screen();
@@ -100,8 +100,9 @@ void draw_start_level() { //Draws the initial stage area
     for (y = 0; y < 7; y++) {
 		for (x = 0; x < 10; x++) {
 			switch (level[y][x]) {
-				case 'D': //Square Block Cross
-				case 'B': //Square Block
+				case ' ': //Empty
+					break;
+				case 'D': //Square Block
 					draw_square(x * 32, y * 32, 32, gfx_blue);
 					break;
 				case 'x': //Small Spike
@@ -154,7 +155,7 @@ void draw_fps(int rate) {
 }
 
 void draw_next_level(uint8_t movement) { //Draws the next stage area
-    int y;
+    uint8_t y = 7;
 	//char tile[8];
 	
     if (movement) {
@@ -164,8 +165,10 @@ void draw_next_level(uint8_t movement) { //Draws the next stage area
 		frame_tracker[draw_location] += movement;
 	}
 
-    for (y = 0; y < 7; y++) {
+    while (--y) {
 		switch (level[y][10 + position[draw_location]]) {
+			case ' ': //Empty
+				break;
 			case 'D': //Square Block
 				draw_square(320 - frame_tracker[draw_location], y * 32, 32, gfx_blue);
 				break;
@@ -177,7 +180,7 @@ void draw_next_level(uint8_t movement) { //Draws the next stage area
 				break;
 			case 's': //Two Small Spikes
 				draw_spike(320 - frame_tracker[draw_location], y * 32 + 16, 16, 16, gfx_red);
-				draw_spike(336 - frame_tracker[draw_location], y * 32 + 16, 16, 16, gfx_red);
+				draw_spike(336 - frame_tracker[draw_location], y * 32 + 16, 16, 16, gfx_red); //320 + 16
 				break;
 			case '-': //Top Half Block
 				draw_rectangle(320 - frame_tracker[draw_location], y * 32, 32, 16, gfx_blue);
