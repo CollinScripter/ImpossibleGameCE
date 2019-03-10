@@ -6,7 +6,7 @@
 # ----------------------------
 
 NAME        ?= GAME
-COMPRESSED  ?= YES
+COMPRESSED  ?= NO
 ICON        ?= iconc.png
 DESCRIPTION ?= "Impossible Game CE"
 

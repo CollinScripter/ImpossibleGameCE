@@ -11,18 +11,8 @@
 #include <string.h>
 #include <graphx.h>
 #include <keypadc.h>
-
 #include <debug.h>
 
 #include "gfx.h"
 
 #endif
-
-#define SCALE 32
-#define HALF_SCALE 16
-#define TRANSPARENT_COLOR 10
-#define FONT_WIDTH        8
-#define FONT_HEIGHT       8
-#define LEVEL_LENGTH 276 * SCALE
-#define BOUNDY (LCD_HEIGHT - 16) / SCALE
-#define BOUNDX (LCD_WIDTH / SCALE)
