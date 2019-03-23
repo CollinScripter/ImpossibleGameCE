@@ -15,4 +15,13 @@
 
 #include "gfx.h"
 
+struct character {
+	uint8_t prev_y;
+	uint8_t y;
+	int8_t degree;
+	uint8_t color;
+};
+
+#define PLAYER_X 64
+
 #endif
