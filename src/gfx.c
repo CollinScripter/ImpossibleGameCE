@@ -193,10 +193,8 @@ void draw_next_level(uint8_t movement) { //Draws the next stage area
 
     if (movement) {
 		gfx_Sprite_NoClip(behind_player[draw_location], PLAYER_X - 7, player.prev_y - 7); //Restore area behind player
-		
 		gfx_ShiftLeft(movement); //Move left
-		
-		gfx_GetSprite_NoClip(behind_player[draw_location], PLAYER_X - 7, player.y - 7);
+		gfx_GetSprite_NoClip(behind_player[draw_location], PLAYER_X - 7, player.y - 7); //Get area behind player
 
 		if (player.degree) {
 			gfx_TransparentSprite_NoClip(player_rotations[player.degree - 1], PLAYER_X - 7, player.y - 7);
@@ -211,6 +209,7 @@ void draw_next_level(uint8_t movement) { //Draws the next stage area
 		gfx_FillRectangle_NoClip(LCD_WIDTH - movement, 0, movement, 224); //Blank out previous drawing area
 		gfx_SetColor(gfx_white);
 		gfx_FillRectangle_NoClip(LCD_WIDTH - movement, LCD_HEIGHT - 16, movement, 4); //Draw line
+
 		frame_tracker[draw_location] += movement;
 	}
 
@@ -219,6 +218,7 @@ void draw_next_level(uint8_t movement) { //Draws the next stage area
 			case 'D': //Square Block
 				gfx_SetColor(gfx_blue);
 				gfx_FillRectangle(320 - frame_tracker[draw_location], y * 32, 32, 32);
+				//gfx_Sprite(square_tile, 320 - frame_tracker[draw_location], y * 32);
 				break;
 			case 's': //Two Small Spikes
 				gfx_Sprite(double_spike_tile, 320 - frame_tracker[draw_location], y * 32 + 16);

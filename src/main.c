@@ -5,6 +5,8 @@
 
 uint16_t position[2] = {0};
 uint8_t last_move = 0;
+uint16_t attempts = 0;
+uint8_t dead = 0;
 //extern uint8_t draw_location;
 struct character player = {LCD_HEIGHT - (32 + 16), LCD_HEIGHT - (32 + 16), 0, gfx_orange};
 
@@ -35,36 +37,42 @@ void main() {
 	clock_init();
 
     while (! kb_Data[6] & kb_Enter) {
-		start_tick = (float) atomic_load_increasing_32(&timer_1_Counter);
+		while (!dead) {
+			start_tick = (float) atomic_load_increasing_32(&timer_1_Counter);
 
-        kb_Scan();
-		if (kb_Data[3] & kb_0) player.degree += 1;
-        else if (kb_Data[3] & kb_1) player.degree -= 1;
+        	kb_Scan();
+			if (kb_Data[3] & kb_0) player.degree += 1;
+        	else if (kb_Data[3] & kb_1) player.degree -= 1;
 
-		move = 352 * tick_time; //Pixels moved per second (32x11)
+			move = 352 * tick_time; //Pixels moved per second (32x11)
 
-		check_bounds();
+			check_bounds();
 
-        if (move != 0) {
-			draw_next_level(move + last_move); //Draw the new junk
-            last_move = move; //Keep frames in sync
-        }
+        	if (move != 0) {
+				draw_next_level(move + last_move); //Draw the new junk
+        	    last_move = move; //Keep frames in sync
+        	}
 
-		if (rtc_IntStatus & RTC_SEC_INT) {
-            draw_fps(tick_rate);
-			last_tick_rate = tick_rate;
-			tick_rate = 0;
-            rtc_IntAcknowledge = rtc_IntStatus;
-        } else {
-			draw_fps(last_tick_rate);
-		}
+			if (rtc_IntStatus & RTC_SEC_INT) {
+        	    draw_fps(tick_rate);
+				last_tick_rate = tick_rate;
+				tick_rate = 0;
+        	    rtc_IntAcknowledge = rtc_IntStatus;
+        	} else {
+				draw_fps(last_tick_rate);
+			}
 
+			swap_draw();
+
+			//Check for collisions here
+
+			tick_time = ((float) atomic_load_increasing_32(&timer_1_Counter) - start_tick) / 32768;
+			tick_rate++;
+        	//while (!os_GetCSC()) {}
+    	}
 		swap_draw();
-
-		tick_time = ((float) atomic_load_increasing_32(&timer_1_Counter) - start_tick) / 32768;
-		tick_rate++;
-        //while (!os_GetCSC()) {}
-    }
+		//Draw death animation
+	}
 
 	exit_gfx();
 }
